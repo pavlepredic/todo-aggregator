@@ -1,0 +1,58 @@
+php:
+  name: todo-aggregator-php-fpm
+  image: ~
+  replicaCount: 1
+
+nginx:
+  name: todo-aggregator-nginx
+  image: ~
+  replicaCount: 1
+
+mariadb:
+  name: todo-aggregator-mariadb
+  volume:
+    name: todo-aggregator-mariadb-volume
+
+migration:
+  name: todo-aggregator-migration
+
+ci:
+  branch:
+    name: master
+    slug: master
+  pipeline: ~
+  job: ~
+
+app:
+  name: todo-aggregator
+  url: ~
+  config:
+    slackSigningSecret: ~
+    db:
+      user: ~
+      password: ~
+      rootPassword: ~
+      name: todo
+
+resources:
+  php:
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+    limits:
+      cpu: "20m"
+      memory: "512Mi"
+  nginx:
+    requests:
+      cpu: "10m"
+      memory: "128Mi"
+    limits:
+      cpu: "20m"
+      memory: "512Mi"
+  mariadb:
+    requests:
+      cpu: "50m"
+      memory: "512Mi"
+    limits:
+      cpu: "100m"
+      memory: "1Gi"

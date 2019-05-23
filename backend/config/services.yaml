@@ -1,0 +1,54 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    mailjet_connection_timeout: 30
+    mailjet_request_timeout: 30
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+
+    # register services
+
+    App\Application\:
+        resource: '../src/Application'
+
+    App\Domain\:
+        resource: '../src/Domain'
+        exclude: '../src/Domain/{Model}'
+
+    App\UI\:
+        resource: '../src/UI'
+        exclude: '../src/UI/{Controller,Exception}'
+
+    App\UI\Controller\:
+        resource: '../src/UI/Controller'
+        tags: ['controller.service_arguments']
+
+    App\Domain\Repository\TodoItemRepository:
+        factory: 'App\Domain\Factory\TodoItemRepositoryFactory:generate'
+
+    App\Infrastructure\:
+        resource: '../src/Infrastructure'
+        exclude: '../src/Infrastructure/{Entity,Migrations}'
+
+    App\Domain\Provider\Gitlab\Repository\UserConfigRepository:
+        class: App\Infrastructure\Repository\Gitlab\UserConfigRepository
+
+    App\UI\Authorization\SlackSignatureValidator:
+        arguments:
+            $signingSecret: '%env(SLACK_SIGNING_SECRET)%'
+
+    # ------------
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    GuzzleHttp\ClientInterface:
+        class: GuzzleHttp\Client

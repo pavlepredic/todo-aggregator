@@ -1,0 +1,50 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Values.nginx.name }}
+  labels:
+    app: {{ .Values.app.name }}
+    service: nginx
+    branch: {{ .Values.ci.branch.name }}
+spec:
+  replicas: {{ .Values.nginx.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+      service: nginx
+      branch: {{ .Values.ci.branch.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+        service: nginx
+        branch: {{ .Values.ci.branch.name }}
+    spec:
+      containers:
+        - name: nginx
+          image: {{ .Values.nginx.image }}
+          imagePullPolicy: Always
+          env:
+            - name: PHP_FPM
+              value: {{ .Values.php.name }}:9000
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+          resources:
+            requests:
+              cpu: {{ .Values.resources.nginx.requests.cpu }}
+              memory: {{ .Values.resources.nginx.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.nginx.limits.cpu }}
+              memory: {{ .Values.resources.nginx.limits.memory }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+      imagePullSecrets:
+        - name: regsecret

@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.migration.name }}
+  labels:
+    app: {{ .Values.app.name }}
+    branch: {{ .Values.ci.branch.name }}
+spec:
+  template:
+    metadata:
+      name: {{ .Values.migration.name }}
+    spec:
+      containers:
+        - image: {{ .Values.php.image }}
+          imagePullPolicy: Always
+          name: {{ .Values.migration.name }}
+          command: ["bash", "-c"]
+          args: ["/var/www/html/bin/console --env=prod doctrine:migrations:migrate --no-interaction"]
+          env:
+            - name: DATABASE_URL
+              value: "mysql://{{ .Values.app.config.db.user }}:{{ .Values.app.config.db.password }}@{{ .Values.mariadb.name }}:3306/{{ .Values.app.config.db.name }}"
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: regsecret
