@@ -1,0 +1,38 @@
+#!/bin/bash
+
+usage() {
+    echo "Usage:"
+    echo "$0 composer [command][args] - Run a composer command"
+    echo "$0 phpunit [args]           - Run phpunit (optionally with args)"
+    echo "$0 console [command][args]  - Run symfony console command (optionally with args)"
+    echo "$0 migrate                  - Run database migrations"
+    echo "$0 php-shell                - Get a shell in php container"
+    echo "$0 nginx-shell              - Get a shell in nginx container"
+    exit 1
+}
+
+COMMAND=$1
+
+case "$COMMAND" in
+    "composer")
+        docker exec php-fpm composer ${@:2}
+        ;;
+    "phpunit")
+        docker exec php-fpm ./bin/phpunit ${@:2}
+        ;;
+    "console")
+        docker exec -it php-fpm php bin/console ${@:2}
+        ;;
+    "migrate")
+        docker exec -it php-fpm php bin/console doctrine:migrations:migrate
+        ;;
+    "php-shell")
+        docker exec -it php-fpm bash
+        ;;
+    "nginx-shell")
+        docker exec -it nginx bash
+        ;;
+    *)
+        usage
+        ;;
+esac

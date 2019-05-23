@@ -1,0 +1,54 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Values.php.name }}
+  labels:
+    app: {{ .Values.app.name }}
+    service: php-fpm
+    branch: {{ .Values.ci.branch.name }}
+spec:
+  replicas: {{ .Values.php.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+      service: php-fpm
+      branch: {{ .Values.ci.branch.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+        service: php-fpm
+        branch: {{ .Values.ci.branch.name }}
+    spec:
+      containers:
+        - name: php-fpm
+          image: {{ .Values.php.image }}
+          imagePullPolicy: Always
+          env:
+            - name: DATABASE_URL
+              value: "mysql://{{ .Values.app.config.db.user }}:{{ .Values.app.config.db.password }}@{{ .Values.mariadb.name }}:3306/{{ .Values.app.config.db.name }}"
+            - name: SLACK_SIGNING_SECRET
+              value: {{ .Values.app.config.slackSigningSecret }}
+          ports:
+            - containerPort: 9000
+              name: fpm
+              protocol: TCP
+          resources:
+            requests:
+              cpu: {{ .Values.resources.php.requests.cpu }}
+              memory: {{ .Values.resources.php.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.php.limits.cpu }}
+              memory: {{ .Values.resources.php.limits.memory }}
+          livenessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      imagePullSecrets:
+        - name: regsecret

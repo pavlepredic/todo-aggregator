@@ -1,0 +1,10 @@
+services:
+    Monolog\Formatter\JsonFormatter: ~
+
+monolog:
+    handlers:
+        stdout:
+            type: stream
+            path: "php://stdout"
+            level: debug
+            formatter: Monolog\Formatter\JsonFormatter

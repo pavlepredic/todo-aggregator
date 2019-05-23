@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.mariadb.name }}
+  labels:
+    app: {{ .Values.app.name }}
+    service: mariadb
+    branch: {{ .Values.ci.branch.name }}
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: {{ .Values.app.name }}
+    service: mariadb
+    branch: {{ .Values.ci.branch.name }}
+  clusterIP: None

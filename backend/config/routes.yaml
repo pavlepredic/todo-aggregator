@@ -1,0 +1,9 @@
+slack:
+    path: /slack
+    controller: App\UI\Controller\SlackCommandController::execute
+    methods: [POST]
+
+healhz:
+    path: /healthz
+    controller: App\UI\Controller\HealthCheckController::execute
+    methods: [GET]

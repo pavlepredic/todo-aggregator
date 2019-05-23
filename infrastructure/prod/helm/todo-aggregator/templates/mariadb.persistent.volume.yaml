@@ -1,0 +1,16 @@
+{{ if eq .Values.ci.branch.name "master"}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.mariadb.volume.name }}
+  labels:
+    app: {{ .Values.app.name }}
+    service: mariadb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 8Gi
+{{ end }}

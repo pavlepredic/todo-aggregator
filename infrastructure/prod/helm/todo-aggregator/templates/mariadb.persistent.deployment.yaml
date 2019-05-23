@@ -1,0 +1,54 @@
+{{ if eq .Values.ci.branch.name "master"}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.mariadb.name }}
+  labels:
+    app: {{ .Values.app.name }}
+    service: mariadb
+    branch: {{ .Values.ci.branch.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+      service: mariadb
+      branch: {{ .Values.ci.branch.name }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+        service: mariadb
+        branch: {{ .Values.ci.branch.name }}
+    spec:
+      containers:
+        - image: mariadb
+          name: mariadb
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.app.config.db.rootPassword }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.app.config.db.name }}
+            - name: MYSQL_USER
+              value: {{ .Values.app.config.db.user }}
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.app.config.db.password }}
+          ports:
+            - containerPort: 3306
+              name: mariadb
+          volumeMounts:
+            - name: {{ .Values.mariadb.volume.name }}
+              mountPath: "/var/lib/mysql"
+          resources:
+            requests:
+              cpu: {{ .Values.resources.mariadb.requests.cpu }}
+              memory: {{ .Values.resources.mariadb.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.mariadb.limits.cpu }}
+              memory: {{ .Values.resources.mariadb.limits.memory }}
+      volumes:
+        - name: {{ .Values.mariadb.volume.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.mariadb.volume.name }}
+{{ end }}
